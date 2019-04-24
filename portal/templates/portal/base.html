@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+
+         <style>
+
+            body{
+                background-color:#0B3861 !important;
+            }
+
+            #preview-div {
+                display:none;
+                    }
+
+            .aa-main-div{
+                vertical-align:center;
+                margin-top: 4%;
+                padding:  5%;
+               }
+
+
+            .aw-main{
+                width:50%;
+                margin:auto;
+                text-align:center;
+                }
+            .aa-tab{
+                padding-left:30px;
+                }
+            .aa-float-left{
+                float:left;
+            }
+            .aa-choose-file{
+                background-color:red !important
+            }
+        </style>
+
+    </head>
+
+
+    <body>
+
+        {% block body %}
+        {% endblock %}
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+        <script type="text/javascript">
+
+            function fileupload() {
+                document.getElementById('preview-div').style.display="none";
+                document.getElementById('preview-pdf').style.display="none";
+                var file_name = document.getElementById('file').value;
+                var l_index = file_name.lastIndexOf('.');
+                var  file_ext = file_name.slice(l_index);
+                var allowed_types =  ['.jpg', '.png', '.pdf', '.jpeg', '.doc', '.docx','.txt', '.odt', '.odp', '.ods', '.xls', '.xlsx', '.ppt', '.pptx', '.rtf'];
+                if  (allowed_types.includes(file_ext)){
+                    console.log(file_ext);
+                    if(file_ext == '.pdf'){
+
+                        const file=document.querySelector("#file").files[0];
+                        let reader = new FileReader();
+                        reader.addEventListener("load", function (){
+                            let dt = reader.result;
+                                // let cn=count-1;
+                                previewpdf(dt);
+                            }, false);
+                            if (file) {
+                                reader.readAsDataURL(file);
+                            }
+
+                    }
+                    else{
+                        pdffile=document.getElementById("file").files[0];
+                    pdffile_url=URL.createObjectURL(pdffile);
+                    document.getElementById('iviewer').setAttribute('src',pdffile_url);
+                    }
+                }
+                else{
+                    document.getElementById('file').value = '';
+                    alert('File Type Not Allowed')
+                }
+            }
+           //for converting base64 to arrayunit8
+            function convertDataURIToBinary(dataURI){
+                let BASE64_MARKER = ';base64,';
+                let base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+                let base64 = dataURI.substring(base64Index);
+                let raw = window.atob(base64);
+                let rawLength = raw.length;
+                let array = new Uint8Array(new ArrayBuffer(rawLength));
+
+        for(let i = 0; i < rawLength; i++) {
+          array[i] = raw.charCodeAt(i);
+        }
+        return array;
+    }
+
+        let pdfDoc,
+            pageNum,
+            pageIsRendering,
+            pageNumIsPending;
+            var container;
+            var canvas , ctx;
+            let pdfAsArray;
+            let min , max ;
+
+
+        function previewpdf(data){
+                pdfDoc = null,
+                min = 1,
+                pageNum = min,
+                pageIsRendering = false,
+                pageNumIsPending = null;
+
+        // container = document.querySelector("#canvasclass");
+        canvas = document.querySelector('#can'),
+        ctx = canvas.getContext('2d');
+        pdfAsArray = convertDataURIToBinary(data);
+        pdfjsLib.getDocument(pdfAsArray).promise.then(pdfDoc_ => {
+            pdfDoc = pdfDoc_;
+             max = pdfDoc.numPages
+            document.querySelector('#page_count').textContent = max;
+            document.querySelector('#page_num').textContent = min;
+            renderPage(pageNum);
+        });
+    }
+    //Render the page
+    let resolution = 1;
+    const renderPage = num => {
+
+        pageIsRendering = true;
+        //Get page
+        pdfDoc.getPage(num).then(page => {
+
+            let viewport = page.getViewport(resolution);
+            // let scale = container.clientWidth / viewport.width;
+            viewport = page.getViewport(1);
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            const renderCtx = {
+                canvasContext: ctx,
+                viewport
+            }
+
+            page.render(renderCtx).promise.then(() => {
+                pageIsRendering = false;
+
+                if(pageNumIsPending !== null){
+
+                    renderPage(pageNumIsPending);
+                    pageNumIsPending = null;
+                }
+            });
+
+            //Output current page
+             document.querySelector('#page_num').value = num;
+        });
+    };
+    // Check for pages rendering
+    const queueRenderPage = num => {
+        if(pageIsRendering) {
+
+            pageNumIsPending = num;
+        }else {
+
+            renderPage(num);
+        }
+    }
+
+    //Show Prev Page
+    const showPrevPage = () => {
+        if(pageNum <= min) {
+            return;
+        }
+        pageNum--;
+        queueRenderPage(pageNum);
+    }
+
+    //Show Next Page
+    const showNextPage = () => {
+        if(pageNum >= max) {
+            return;
+        }
+        pageNum++;
+        queueRenderPage(pageNum);
+    }
+
+
+    // Button Events
+
+    document.querySelector('#prev').addEventListener('click',showPrevPage);
+    document.querySelector('#next').addEventListener('click',showNextPage);
+
+     function preview() {
+                var file_name = document.getElementById('file').value;
+                var l_index = file_name.lastIndexOf('.');
+                var  file_ext = file_name.slice(l_index);
+                var allowed_types =  ['.jpg', '.png', '.pdf', '.jpeg', '.doc', '.docx','.txt', '.odt', '.odp', '.ods', '.xls', '.xlsx', '.ppt', '.pptx', '.rtf'];
+                if  (file_ext == '.pdf'){
+                    var y = document.getElementById("preview-pdf");
+                if (y.style.display != "block") {
+                    y.style.display = "block";
+                } else {
+                    y.style.display = "none";
+                    }
+                }
+                else if(allowed_types.includes(file_ext))
+                {
+                    var x = document.getElementById("preview-div");
+                if (x.style.display != "block") {
+                    x.style.display = "block";
+                } else {
+                    x.style.display = "none";
+                    }
+                }
+                }
+
+        </script>
+    </body>
+</html>

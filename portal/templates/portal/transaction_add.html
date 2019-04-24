@@ -1,0 +1,79 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}<title> Upload your file </title>{% endblock %}
+
+{% block body %}
+
+    <div class="jumbotron aa-main-div container img-rounded text-center" style="padding: 30px">
+
+
+
+                        <h3 class="alert bg-primary">Eway Print</h3>
+
+                        {% if error_message %}<h4  class="alert alert-danger fade in">{{ error_message }}</h4>{% endif %}
+
+                        <form method="post" enctype="multipart/form-data" class="form-horizontal">
+                            {% csrf_token %}
+
+                            <div class="form-group ">
+                                <label for="color_mode" class="control-label col-sm-2 aa-tab"><span class="aa-float-left">Color Mode :</span></label>
+                                <div class="col-sm-10">
+                                    <select id="color_mode" name="color_model" class="form-control" required>
+                                        <option value="BW">Black & White</option>
+                                        <option value="CL">Color</option>
+                                    </select>
+                                </div>
+                            </div>
+
+
+                              <div class="form-group ">
+                                <label for="payment_mode" class="control-label col-sm-2 aa-tab"><span class="aa-float-left">Payment Mode :</span></label>
+                                <div class="col-sm-10">
+                                    <select id="payment_mode" name="payment_mode" class="form-control " required>
+                                        <option value="CO">Coin</option>
+                                        <option value="AC">Account</option>
+                                    </select>
+                                </div>
+                            </div>
+
+
+                                <br>
+
+                            <div class="form-group ">
+                                <label for="transaction_file" class="control-label col-sm-2 aa-tab"><span class="aa-float-left">File :</span></label>
+                                <div class="col-sm-10">
+
+                                    <label class="btn btn-default btn-sm center-block btn-file" style="height:40px">
+                                        <span style="float:left; font-size:14px;"><span id="file_input_msg">Choose File</span></span>
+                                        <input required onchange="fileupload();" style="display: none;" id="file" name="file" type="file" class="form-control aa-choose-file" >
+                                    </label>
+
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" type="submit"><b>GET OTP</b></button>
+
+                            <input class="btn btn-primary" type="button" value="Preview" onclick="preview();" />
+                            <br><br><br>
+                            <div style="clear:both" id="preview-div" style="display:none;">
+                                <iframe id="iviewer" frameborder="0" scrolling="no" width="310" height="400"></iframe>
+                            </div>
+                            <div id="preview-pdf" style="display:none;">
+                                <div>
+                                     <button id="prev" class="btn-primary">Previous</button>
+                                     <button id="next" class="btn-primary">Next</button>
+                                                                <br><br>
+                                    <span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
+                                 </div>
+                                <canvas id="can" ></canvas>
+                            </div>
+                            <br><br><br>
+
+
+
+                        </form>
+
+    </div>
+{% endblock %}
+
+

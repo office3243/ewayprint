@@ -1,0 +1,14 @@
+{% extends "portal/base.html" %}
+{% block title  %}<title>Eway Print</title>{% endblock %}
+
+{% block body %}
+
+    <div class="jumbotron container aa-main-div img-rounded text-center">
+        <h3>Transaction received succesfully </h3>
+        <h3> your otp-1 is {{ otp_1 }}</h3>
+        <h3> your otp-2 is {{ otp_2 }}</h3>
+        <br>
+        <a href={% url 'transaction_add' %}><button class="btn btn-primary">Return To Home</button></a>
+    </div>
+
+{% endblock %}

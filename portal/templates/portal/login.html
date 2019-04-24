@@ -1,0 +1,39 @@
+{% extends "portal/base.html" %}
+{% block title %}
+    <title>Login</title>
+{% endblock %}
+{% block body %}
+    <br><br>
+    {% if messages %}
+        {% for i in messages %}
+            <h1>{{ i }}</h1>
+        {% endfor %}
+    {% endif %}
+
+            <div class="jumbotron container" id="login" style="padding: 50px">
+                <h4 class="alert alert-info">login</h4>
+                <div class="container">
+                      {% if form.errors %}
+                            <span class="alert-danger">
+                                Wrong Username or Password
+                            </span><br><br>
+                    {% endif %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="username">Username : </label><br>
+                            <input required class="form-control" type="text" name="username" id="username" placeholder="Enter your email or phone">
+                        </div>
+                        <br>
+                        <div class="form-group">
+                            <label for="password">Password : </label><br>
+                            <input required class="form-control" type="password" name="password" id="password" placeholder="Enter your password">
+                        </div>
+                        <button class="btn btn-primary">Login</button>
+                    </form>
+                    <br>
+                </div>
+            </div>
+{% endblock %}
+{% block extrajs %}
+{% endblock %}
